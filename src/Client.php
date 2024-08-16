@@ -4,11 +4,28 @@ namespace Xiaosongshu\Animation;
 class Client
 {
 
+
+    /** 圆心 */
+    private $centerX = 0; // 几何中心X
+    private $centerY = 0; // 几何中心Y
+
+
+    /** 轨迹画布，存储轨迹 */
+    private $trail = [];
+    /** 存储星星的数组 */
+    private $stars = [];
+    /** 终端宽度 */
+    private $width = 0;
+    /** 终端高度 */
+    private $height = 0;
+    /** 动画刷新时间 */
+    private $fresh = 0;
+
     /**
      * 获取终端宽度和高度
      * @return array|int[]
      */
-    public function getTerminalSize()
+    private function getTerminalSize()
     {
         if (PHP_OS_FAMILY === 'Windows') {
             $cmd = 'mode con'; // Windows系统获取控制台尺寸的命令
@@ -34,7 +51,7 @@ class Client
     /**
      * 生成随机颜色（256色模式）
      */
-    public function getRandomColor()
+    private function getRandomColor()
     {
         /** 每6个数字一个渐变色段，先生成渐变色的最亮色 */
         $colors = range(21, 231, 6); // 生成色彩范围
@@ -54,7 +71,7 @@ class Client
      * @note Bresenham算法总结起来就是，为了维持直线的倾斜度，当y方向增量过大，倾斜度被增加了，就需要增加一个x方向单位，以降低倾斜度所以要减一个y方向增量。
      * 当x方向增量过大，那么说明直线的倾斜度变小了，需要增加一个y方向的单位使得倾斜度增加，倾斜度要增加一个x方向增量。
      */
-    public function drawLine(&$canvas, $x0, $y0, $x1, $y1)
+    private function drawLine(array &$canvas, int $x0, int $y0, int $x1, int $y1)
     {
         /** x方向增量 */
         $dx = abs($x1 - $x0); // x方向的距离
@@ -96,12 +113,12 @@ class Client
 
     /**
      * 生成渐变颜色
-     * @param $baseColor
-     * @param $fadeLevel
+     * @param int $baseColor
+     * @param int $fadeLevel
      * @return string
      * @note 但是cli模式下这个颜色对比实在太小了吧，
      */
-    public function getFadedColor($baseColor, $fadeLevel)
+    private function getFadedColor(int $baseColor, int $fadeLevel)
     {
         /** 颜色逐渐变暗 */
         return intval($baseColor) - $fadeLevel;
@@ -113,7 +130,7 @@ class Client
      * @param bool $isWaterLine 是否流线型
      * @return array
      */
-    public function generateStars(int $numStars, bool $isWaterLine)
+    private function generateStars(int $numStars, bool $isWaterLine)
     {
         $stars = [];
         for ($i = 0; $i < $numStars; $i++) {
@@ -123,13 +140,12 @@ class Client
                 /** 从中心开始生成流星 若大于0则中间会留一个空腔 */
                 'radius' => 0, //
                 /** 调整星星速度,半径增加的速度 ，值越大，轨迹沿直径方向变化越大 */
-                'speed' => $isWaterLine ? 0.09 : (0.1 + 0.1 * mt_rand(0, 5)), //
+                'speed' => $isWaterLine ? 0.1 : (0.1 + 0.1 * mt_rand(0, 5)), //
                 /** 调整角速度，角度增加的速度，值越大，星星旋转的越快，绕的圆周越多 */
                 'angleSpeed' => $isWaterLine ? 0.03 : (0.03 * mt_rand(1, 2)), //
                 /** 随机颜色 */
                 'color' => $this->getRandomColor()
             ];
-
         }
         return $stars;
     }
@@ -139,9 +155,9 @@ class Client
      * @param array $config
      * @param array $canvas
      * @return array
-     * @note 将三维坐标透视到二维坐标
+     * @note 将三维坐标投射到二维坐标
      */
-    public function computeCoordinateFor3d(array $config = [], array $canvas = [])
+    private function computeCoordinateFor3d(array $config = [], array $canvas = [])
     {
         /** 终端宽度  */
         $width = $config['width'] ?? 80;
@@ -221,16 +237,16 @@ class Client
      * @param array $canvas 画布
      * @return array
      */
-    public function computeCoordinateFor2dCircle(array &$stars, array &$trail, array $config = [], array $canvas = [])
+    private function computeCoordinateFor2dCircle(array &$stars, array &$trail, array $config = [], array $canvas = [])
     {
         $maxStars = $config['maxStars'] ?? 1;
         $numStars = $config['numStars'] ?? 1;
         $isWaterLine = $config['isWaterLine'] ?? true;
-        $centerX = $config['centerX'] ?? 0;
-        $centerY = $config['centerY'] ?? 0;
-        $width = $config['width'] ?? 80;
-        $height = $config['height'] ?? 40;
-        $trailLength = $config['trailLength'] ?? 6;
+        $centerX = $this->centerX;
+        $centerY = $this->centerY;
+        $width = $this->width;
+        $height = $this->height;
+        $trailLength = 6;
         /** 二维平面x轴方向偏移量 */
         $distanceX = $config['distanceX'] ?? 0;
         /** 二维平面y轴方向偏移量 */
@@ -304,27 +320,12 @@ class Client
      * @param int $width 终端宽度
      * @return array
      */
-    public function createCanvas(int $height, int $width)
+    private function createCanvas(int $height, int $width)
     {
         /** 画布 */
         return array_fill(0, $height, array_fill(0, $width, ' '));
     }
 
-    /** 圆心 */
-    private $centerX = 0; // 几何中心X
-    private $centerY = 0; // 几何中心Y
-
-
-    /** 轨迹画布，存储轨迹 */
-    private $trail = [];
-    /** 存储星星的数组 */
-    private $stars = [];
-    /** 终端宽度 */
-    private $width = 0;
-    /** 终端高度 */
-    private $height = 0;
-    /** 动画刷新时间 */
-    private $fresh = 0;
 
     /**
      * 初始化
@@ -332,7 +333,6 @@ class Client
      */
     public function __construct(float $width = 0, float $height = 0, int $fresh = 0)
     {
-
         if ($width <= 0 || $height <= 0) {
             /** 获取终端的宽度和高度 */
             list($width, $height) = $this->getTerminalSize();
@@ -359,7 +359,7 @@ class Client
         /** 存储星星的数组 */
         $this->stars = [];
 
-        $this->animationsConfig=['3d'=>[],'2d'=>[]];
+        $this->animationsConfig = ['3d' => [], '2d' => []];
 
     }
 
@@ -395,15 +395,12 @@ class Client
         $this->animationsConfig['2d'][$id] = $config;
     }
 
-
-
     /**
      * @return mixed
      * @note 每一个动画的角速度不一致，偏移量不一致
      */
     public function run()
     {
-
         while (true) {
             /** 清屏并移除历史记录 */
             echo "\033[H\033[J";
@@ -478,6 +475,7 @@ class Client
                 if ($config['angleZ'] >= 2 * M_PI) $config['angleZ'] -= 2 * M_PI; // 保持Z轴角度在0到2π之间
             }
 
+            /** 渲染二维动画 */
             foreach ($this->animationsConfig['2d'] as &$config) {
                 if ($config['type'] == 'star_rain') {
                     /** 渲染2D流星 */
@@ -532,22 +530,10 @@ class Client
 
             /** 渲染页面 */
             foreach ($canvas as $line) {
-                echo implode('', $line) . PHP_EOL; // 输出画布内容
+                echo implode('', $line) . PHP_EOL;
             }
             /** 这个时间是看着最流畅的 */
-            usleep($this->fresh * 10000); // 100ms 延时
+            usleep($this->fresh * 10000);
         }
     }
-
-    /**
-     * 添加飘雪背景
-     * @param array $config
-     * @return void
-     */
-    public function addSnow(array $config)
-    {
-
-        //todo 稍等
-    }
-
 }
