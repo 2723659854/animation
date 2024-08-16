@@ -13,7 +13,7 @@
 composer require xiaosongshu/animation
 ```
 ### 使用实例
-
+比如创建一个`demo.php`的文件，用来实现动画演示。
 #### 旋转的立方体
 ```php 
 <?php
@@ -65,6 +65,10 @@ $client->add3dAnimation($config2);
 # 运行动画
 $client->run();
 ```
+####  运行脚本
+```bash 
+php yourPath/demo.php
+```
 #### 效果图
 
 <img src="./lifangti.png" width="200" height="auto">
@@ -99,6 +103,12 @@ $client->addStarRain($config3);
 # 运行动画
 $client->run();
 ```
+
+####  运行脚本
+```bash 
+php yourPath/demo.php
+```
+
 ####  流星雨动画效果
 
 <img src="./rain.png" width="200" height="auto">
@@ -119,6 +129,10 @@ $client->addStarRain($config3);
 
 # 运行动画
 $client->run();
+```
+####  运行脚本
+```bash 
+php yourPath/demo.php
 ```
 
 #### 
