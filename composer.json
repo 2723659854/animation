@@ -8,6 +8,7 @@
             "Xiaosongshu\\Animation\\": "src/"
         }
     },
+    "minimum-stability": "dev",
     "authors": [
         {
             "name": "yanglong",
