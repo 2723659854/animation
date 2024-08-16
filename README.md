@@ -113,6 +113,28 @@ php yourPath/demo.php
 
 <img src="./rain.png" width="200" height="auto">
 
+#### 落雪背景效果
+
+```php
+<?php
+require_once __DIR__ . '/src/Client.php';
+$client = new \Xiaosongshu\Animation\Client();
+/** 雪花飘落背景 */
+$config4 = [
+    /** 雪花密度 */
+    'snowCount'=>100,
+    /** 是否随机颜色 */
+    'randomColor'=>true,
+];
+/** 添加雪花飘落背景 */
+$client->addSnow($config4);
+
+/** 运行脚本 */
+$client->run();
+
+```
+雪花背景效果图省略。
+
 ### 动画叠加
 本插件可以实现多个动画相互叠加，效果如下所示。
 ```php
@@ -140,4 +162,4 @@ php yourPath/demo.php
 
 ###  其它
 
-后面再做其他特效吧，先这样了。
+后面再做其他特效吧，先这样了。另外，动画呈现的效果跟不同的计算机有关，有些系统能够呈现高品质流畅的动画，有些则会卡顿。如果效果不理想，建议换台机器测试。

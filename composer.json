@@ -1,6 +1,7 @@
 {
     "name": "xiaosongshu/animation",
     "description": "一款php制作的控制台动画渲染工具",
+    "keywords": ["animation","3D","2D"],
     "type": "library",
     "license": "MIT",
     "autoload": {

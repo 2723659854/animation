@@ -44,7 +44,8 @@ class Client
                 $height = 25; // 默认高度
             }
         }
-        return [$width, $height]; // 返回宽度和高度
+        /** 某些操作系统返回的宽度和高度很离谱，导致画布很大，以致于看不到动画 */
+        return [$width > 200 ? 200 : $width, $height > 35 ? 35 : $height]; // 返回宽度和高度
     }
 
 
@@ -329,7 +330,10 @@ class Client
 
     /**
      * 初始化
-     * @return void
+     * Client constructor.
+     * @param int|float $width 终端宽度
+     * @param int|float $height 终端高度
+     * @param int|int $fresh 刷新速率
      */
     public function __construct(float $width = 0, float $height = 0, int $fresh = 0)
     {
@@ -475,8 +479,10 @@ class Client
                 if ($config['angleZ'] >= 2 * M_PI) $config['angleZ'] -= 2 * M_PI; // 保持Z轴角度在0到2π之间
             }
 
+
             /** 渲染二维动画 */
             foreach ($this->animationsConfig['2d'] as &$config) {
+
                 if ($config['type'] == 'star_rain') {
                     /** 渲染2D流星 */
                     $config3 = [
@@ -526,6 +532,54 @@ class Client
                         $config['directionY'] = 1;
                     }
                 }
+
+                if ($config['type'] == 'snow') {
+
+                    /** 绘制背景 ，检测显示区域的每一个坐标是否有雪花，并渲染 */
+                    for ($y = 0; $y < $this->height; $y++) {
+                        for ($x = 0; $x < $this->width; $x++) {
+                            foreach ($this->snowflakes as $snowflake) {
+                                /** 当前坐标有雪花 */
+                                if ($snowflake['x'] == $x && $snowflake['y'] == $y) {
+                                    $rgb = $config['randomColor']?$this->getRandomColor():237;
+                                    $canvas[$y][$x] =  "\033[38;5;{$rgb}m*\033[0m";
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    /** 更新雪花坐标 */
+                    foreach ($this->snowflakes as &$snowflake) {
+                        /** 2%的概率改变飘落方向，模拟雪花打折璇儿降落的情况，更真实 */
+                        if (rand(1, 100) <= 2) {
+                            $snowflake['speedX'] = -$snowflake['speedX'];
+                        }
+                        /** 更新雪花横向坐标 */
+                        $snowflake['x'] += $snowflake['speedX'];
+                        /** 更新雪花纵向坐标 */
+                        $snowflake['y'] += $snowflake['speedY'];
+                        /** 处理到达左右边界的情况 如果横向已经超出屏幕 ，然后更换方向 */
+                        if ($snowflake['x'] < 0) {
+                            $snowflake['x'] = 0;
+                            /** 改变方向 */
+                            $snowflake['speedX'] = -$snowflake['speedX'];
+                        } elseif ($snowflake['x'] >= $this->width) {
+                            $snowflake['x'] = $this->width - 1;
+                            /** 改变方向 */
+                            $snowflake['speedX'] = -$snowflake['speedX'];
+                        }
+                        /** 处理雪花到达底部的情况 */
+                        if ($snowflake['y'] >= $this->height) {
+                            $snowflake['y'] = 0;
+                            $snowflake['x'] = rand(0, $this->width - 1);
+                            /** 重新随机左右移动速度 */
+                            $snowflake['speedX'] = rand(-1, 1);
+                            /** 重新随机下落速度 */
+                            $snowflake['speedY'] = rand(1, 1);
+                        }
+                    }
+                }
             }
 
             /** 渲染页面 */
@@ -535,5 +589,38 @@ class Client
             /** 这个时间是看着最流畅的 */
             usleep($this->fresh * 10000);
         }
+    }
+
+    /** 雪花池 */
+    private $snowflakes = [];
+
+    /**
+     * 添加雪花背景
+     * @param array $config
+     */
+    public function addSnow(array $config)
+    {
+
+        /** id */
+        $id = md5(mt_rand(100, 999) . time());
+        $config['type'] = "snow";
+        $this->animationsConfig['2d'][$id] = $config;
+        /** 随机颜色 */
+        if (!isset($config['randomColor'])){
+            $config['randomColor'] = true;
+        }
+        /** 生成初始的雪花 */
+        for ($i = 0; $i < $config['snowCount']??20; $i++) {
+            /** 雪花数据 */
+            $this->snowflakes[] = [
+                'x' => rand(0, $this->width - 1),
+                'y' => rand(0, $this->height - 1),
+                /** 左右移动速度，-1 表示向左，1 表示向右，0 表示静止 */
+                'speedX' => rand(-1, 1),
+                /** 下落速度 */
+                'speedY' => rand(1, 1),
+            ];
+        }
+
     }
 }

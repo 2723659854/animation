@@ -44,7 +44,7 @@ $config2 = [
     'edges' => [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]],
 ];
 
-$client->add3dAnimation($config2);
+//$client->add3dAnimation($config2);
 
 /** 流星 */
 $config3 = [
@@ -62,6 +62,17 @@ $config3 = [
     /** 二维y轴正方向偏移 */
     'directionY' => 0,
 ];
-$client->addStarRain($config3);
+//$client->addStarRain($config3);
 
+/** 雪花飘落背景 */
+$config4 = [
+    /** 雪花密度 */
+    'snowCount'=>100,
+    /** 是否随机颜色 */
+    'randomColor'=>true,
+];
+/** 添加雪花飘落背景 */
+$client->addSnow($config4);
+
+/** 运行脚本 */
 $client->run();
