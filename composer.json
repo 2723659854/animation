@@ -1,0 +1,20 @@
+{
+    "name": "xiaosongshu/animation",
+    "description": "一款php制作的控制台动画渲染工具",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Xiaosongshu\\Animation\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "yanglong",
+            "email": "2723659854@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0"
+    }
+}
