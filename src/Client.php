@@ -325,8 +325,8 @@ class Client
     {
         /** 画布 */
         return array_fill(0, $height, array_fill(0, $width, ' '));
-    }
 
+    }
 
     /**
      * 初始化
@@ -362,9 +362,8 @@ class Client
         $this->trail = array_fill(0, $height, array_fill(0, $width, []));
         /** 存储星星的数组 */
         $this->stars = [];
-
+        /** 初始化動畫配置 */
         $this->animationsConfig = ['3d' => [], '2d' => []];
-
     }
 
     /** 被添加的所有动画配置 */
@@ -419,6 +418,11 @@ class Client
                 if ($config['_actionIndex'] > (count($config['vertices']) - 1)) {
                     $config['_actionIndex'] = 0;
                 }
+                /** 一次执行一个动作，并更新下一次的动作 */
+                $vertices = $config['vertices'][$config['_actionIndex']++];
+                if (isset($config['function'])&&is_callable($config['function'])){
+                    array_walk($vertices,$config['function']);
+                }
                 /** 立方体 */
                 $config2 = [
                     'width' => $this->width,
@@ -429,8 +433,7 @@ class Client
                     'scale' => $config['scale'] ?? (min($this->width, $this->height) / 8),
                     'distanceX' => $config['distanceX'] ?? 0,
                     'distanceY' => $config['distanceY'] ?? 0,
-                    /** 一次执行一个动作，并更新下一次的动作 */
-                    'vertices' => $config['vertices'][$config['_actionIndex']++],
+                    'vertices' => $vertices,
                     'edges' => $config['edges'],
                 ];
                 /** 渲染3D立方体 */
