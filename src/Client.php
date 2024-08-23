@@ -420,8 +420,8 @@ class Client
                 }
                 /** 一次执行一个动作，并更新下一次的动作 */
                 $vertices = $config['vertices'][$config['_actionIndex']++];
-                if (isset($config['function'])&&is_callable($config['function'])){
-                    array_walk($vertices,$config['function']);
+                if (isset($config['function']) && is_callable($config['function'])) {
+                    array_walk($vertices, $config['function']);
                 }
                 /** 立方体 */
                 $config2 = [
@@ -544,8 +544,15 @@ class Client
                             foreach ($this->snowflakes as $snowflake) {
                                 /** 当前坐标有雪花 */
                                 if ($snowflake['x'] == $x && $snowflake['y'] == $y) {
-                                    $rgb = $config['randomColor']?$this->getRandomColor():237;
-                                    $canvas[$y][$x] =  "\033[38;5;{$rgb}m*\033[0m";
+                                    /** 雪花颜色 */
+                                    $rgb = $snowflake['color'];
+                                    /** 10% 的概率发光 */
+                                    if (rand(1, 100) > 90) {
+                                        $rgb = $rgb + 5;
+                                        $canvas[$y][$x] = "\033[38;5;{$rgb}m※\033[0m";
+                                    } else {
+                                        $canvas[$y][$x] = "\033[38;5;{$rgb}m*\033[0m";
+                                    }
                                     break;
                                 }
                             }
@@ -590,7 +597,7 @@ class Client
                 echo implode('', $line) . PHP_EOL;
             }
             /** 这个时间是看着最流畅的 */
-            usleep($this->fresh * 10000);
+            usleep($this->fresh * 15000);
         }
     }
 
@@ -603,17 +610,12 @@ class Client
      */
     public function addSnow(array $config)
     {
-
         /** id */
         $id = md5(mt_rand(100, 999) . time());
         $config['type'] = "snow";
         $this->animationsConfig['2d'][$id] = $config;
-        /** 随机颜色 */
-        if (!isset($config['randomColor'])){
-            $config['randomColor'] = true;
-        }
         /** 生成初始的雪花 */
-        for ($i = 0; $i < $config['snowCount']??20; $i++) {
+        for ($i = 0; $i < $config['snowCount'] ?? 20; $i++) {
             /** 雪花数据 */
             $this->snowflakes[] = [
                 'x' => rand(0, $this->width - 1),
@@ -622,8 +624,9 @@ class Client
                 'speedX' => rand(-1, 1),
                 /** 下落速度 */
                 'speedY' => rand(1, 1),
+                /** 颜色 随机 让颜色分布更均匀 */
+                'color' => $this->getRandomColor() - rand(0, 5)
             ];
         }
-
     }
 }

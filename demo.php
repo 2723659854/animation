@@ -10,9 +10,9 @@ $config2 = [
     'angleY' => 0,
     'angleZ' => 0,
     /** 三维角速度 */
-    'angleStepX' => 0.01,
-    'angleStepY' => 0.02,
-    'angleStepZ' => 0.01,
+    'angleStepX' => 0.1,
+    'angleStepY' => 0.1,
+    'angleStepZ' => 0.1,
     /** 缩放比例 */
     'scale' => 0,
     /** 初始二维偏移量 */
@@ -45,30 +45,10 @@ $config2 = [
     /** 自定义三维图像顶点变化函数，此处仅为示例，请根据实际情况设置符合你自己需求的顶点变化函数，没有则不写，如果需要动态修改三维物体形状，建议使用自定义函数 */
     'function' => function (&$vertices,$index) {
 
-//        /** 第一个顶点的变化函数 */
-//        if ($index == 0){
-//            /** x坐标 */
-//            $vertices[0] = 4;
-//            /** y坐标 */
-//            $vertices[1] = 4;
-//            /** z坐标 */
-//            $vertices[2] = 4;
-//        }
-//        /** 第二个顶点的变化函数 */
-//        if ($index == 1){
-//            /** x坐标 */
-//            $vertices[0] = $vertices[0] + 1;
-//            /** y坐标 */
-//            $vertices[1] = $vertices[1] + sin(30);
-//            /** z坐标 */
-//            $vertices[2] = $vertices[2] + rand(2,6);
-//        }
-        // ... 其他顶点的变化函数
-
     }
 ];
 
-$client->add3dAnimation($config2);
+//$client->add3dAnimation($config2);
 
 /** 流星 */
 $config3 = [
@@ -96,7 +76,7 @@ $config4 = [
     'randomColor' => true,
 ];
 /** 添加雪花飘落背景 */
-//$client->addSnow($config4);
+$client->addSnow($config4);
 
 /** 运行脚本 */
 $client->run();
